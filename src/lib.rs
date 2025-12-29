@@ -1,22 +1,28 @@
+mod bit_par_iter;
+
+use bit_par_iter::BitParityIter;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemEnum, Meta};
+use syn::{ItemEnum, Meta, parse_macro_input};
 
 fn try_expand(args: Meta, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
-    let start = match args {
-        Meta::Path(path) if path.is_ident("even") => 0,
-        Meta::Path(path) if path.is_ident("odd") => 1,
+    let is_even = match args {
+        Meta::Path(path) if path.is_ident("even") => true,
+        Meta::Path(path) if path.is_ident("odd") => false,
         p => {
             return Err(syn::Error::new_spanned(
                 p.path(),
                 "expected `even` or `odd`",
-            ))
+            ));
         }
     };
 
-    let mut value = start;
+    let mut value_iter = BitParityIter::new(is_even);
 
     for variant in &mut enum_item.variants {
+        let value = value_iter
+            .next()
+            .ok_or_else(|| syn::Error::new_spanned(&variant, "ran out of discriminants"))?;
         if variant.discriminant.is_some() {
             return Err(syn::Error::new_spanned(
                 &variant.ident,
@@ -25,8 +31,6 @@ fn try_expand(args: Meta, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
         }
 
         variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#value)));
-
-        value += 2;
     }
 
     Ok(quote! {
@@ -36,7 +40,7 @@ fn try_expand(args: Meta, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
 }
 
 #[proc_macro_attribute]
-pub fn parity_enum(
+pub fn bit_parity(
     args: proc_macro::TokenStream,
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {

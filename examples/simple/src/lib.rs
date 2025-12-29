@@ -1,9 +1,10 @@
-use parity_enum::parity_enum;
+use parity_enum::bit_parity;
 
-#[parity_enum(even)]
-#[repr(i32)]
+#[bit_parity(even)]
+#[repr(u64)]
 pub enum Sample {
     Foo,
     Bar,
     Baz,
+    Quo,
 }

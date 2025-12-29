@@ -130,6 +130,9 @@ dependencies = [
 [[package]]
 name = "simple"
 version = "0.1.0"
+dependencies = [
+ "parity_enum",
+]
 
 [[package]]
 name = "syn"

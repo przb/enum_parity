@@ -1,0 +1,14 @@
+[package]
+name = "parity_enum"
+version = "0.1.0-alpha"
+edition = "2021"
+rust-version = "1.68"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+
+[dev-dependencies]
+trybuild = { version = ">=1.0", features = ["diff"] }
+

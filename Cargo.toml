@@ -8,6 +8,9 @@ rust-version = "1.68"
 proc-macro = true
 
 [dependencies]
+proc-macro2 = "1.0.74"
+quote = "1.0.35"
+syn = "2.0.87"
 
 [dev-dependencies]
 trybuild = { version = ">=1.0", features = ["diff"] }

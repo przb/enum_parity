@@ -37,7 +37,7 @@ struct BitParityArgs {
 
 fn try_expand(args: BitParityArgs, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
     use quote::quote;
-    let mut bpi = BitParityIter::<usize>::new(matches!(args.parity, Parity::Even));
+    let mut bpi = BitParityIter::<isize>::new(matches!(args.parity, Parity::Even));
 
     for variant in enum_item.variants.iter_mut() {
         if variant.discriminant.is_some() {
@@ -54,7 +54,7 @@ fn try_expand(args: BitParityArgs, mut enum_item: ItemEnum) -> syn::Result<Token
         }
     }
 
-    Ok(quote! {enum_item})
+    Ok(quote! {#enum_item})
 }
 
 #[proc_macro_attribute]

@@ -74,7 +74,7 @@ impl FromAttributes for IntRepr {
         let repr_attr = attrs
             .iter()
             .find(|a| a.path().is_ident("repr"))
-            .ok_or_else(|| darling::Error::custom("Unable to find `repr` attribute"))?;
+            .ok_or_else(|| darling::Error::custom("Enum missing `repr` attribute"))?;
 
         repr_attr.parse_nested_meta(|m| {
             let repr_type = m

@@ -1,7 +1,7 @@
 use parity_enum::bit_parity;
 
-#[bit_parity(even)]
 #[repr(u64)]
+#[bit_parity(even)]
 pub enum Sample {
     Foo,
     Bar,

@@ -83,7 +83,7 @@ impl FromAttributes for IntRepr {
                 .ok_or_else(|| syn::Error::new_spanned(&m.path, "Missing `repr` type"))?
                 .to_string();
             let ir = IntRepr::from_str(&repr_type).map_err(|()| {
-                darling::Error::custom(&format!(
+                darling::Error::custom(format!(
                     "Unsupported `repr` type. Supported types are {}",
                     IntRepr::ALL_FMT.iter().map(|s| format!("`{s}`")).join(" ")
                 ))

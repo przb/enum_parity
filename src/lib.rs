@@ -27,7 +27,7 @@ fn generic_expand<T: IntegerParity + darling::ToTokens>(
     mut enum_item: ItemEnum,
 ) -> syn::Result<TokenStream> {
     let mut bpi = BitParityIter::<T>::new(matches!(args.parity, Parity::Even));
-    for variant in enum_item.variants.iter_mut() {
+    for variant in &mut enum_item.variants {
         if variant.discriminant.is_some() {
             return Err(syn::Error::new_spanned(
                 &variant,
@@ -81,7 +81,5 @@ pub fn bit_parity(
     let args = parse_macro_input!(args as BitParityArgs);
     let enum_item = parse_macro_input!(input as ItemEnum);
 
-    try_expand(args, enum_item)
-        .map(Into::into)
-        .unwrap_or_else(|e| e.into_compile_error().into())
+    try_expand(args, enum_item).map_or_else(|e| e.into_compile_error().into(), Into::into)
 }

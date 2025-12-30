@@ -4,7 +4,7 @@ use darling::FromAttributes;
 use itertools::Itertools;
 
 #[derive(Copy, Clone, Debug)]
-pub(crate) enum IntRepr {
+pub enum IntRepr {
     U8,
     U16,
     U32,
@@ -50,18 +50,18 @@ impl FromStr for IntRepr {
 impl core::fmt::Display for IntRepr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
-            IntRepr::U8 => "u8",
-            IntRepr::U16 => "u16",
-            IntRepr::U32 => "u32",
-            IntRepr::U64 => "u64",
-            IntRepr::U128 => "u128",
-            IntRepr::Usize => "usize",
-            IntRepr::I8 => "i8",
-            IntRepr::I16 => "i16",
-            IntRepr::I32 => "i32",
-            IntRepr::I64 => "i64",
-            IntRepr::I128 => "i128",
-            IntRepr::Isize => "isize",
+            Self::U8 => "u8",
+            Self::U16 => "u16",
+            Self::U32 => "u32",
+            Self::U64 => "u64",
+            Self::U128 => "u128",
+            Self::Usize => "usize",
+            Self::I8 => "i8",
+            Self::I16 => "i16",
+            Self::I32 => "i32",
+            Self::I64 => "i64",
+            Self::I128 => "i128",
+            Self::Isize => "isize",
         };
 
         write!(f, "{display}")
@@ -82,13 +82,13 @@ impl FromAttributes for IntRepr {
                 .get_ident()
                 .ok_or_else(|| syn::Error::new_spanned(&m.path, "Missing `repr` type"))?
                 .to_string();
-            let ir = IntRepr::from_str(&repr_type).map_err(|()| {
+            let ir = Self::from_str(&repr_type).map_err(|()| {
                 darling::Error::custom(format!(
                     "Unsupported `repr` type. Supported types are {}",
-                    IntRepr::ALL_FMT.iter().map(|s| format!("`{s}`")).join(" ")
+                    Self::ALL_FMT.iter().map(|s| format!("`{s}`")).join(" ")
                 ))
                 .with_span(&m.path)
-                .add_sibling_alts_for_unknown_field(IntRepr::ALL_FMT)
+                .add_sibling_alts_for_unknown_field(Self::ALL_FMT)
             })?;
             int_repr = Some(ir);
 

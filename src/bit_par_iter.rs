@@ -1,10 +1,10 @@
-pub(crate) trait IntegerParity: Copy + Sized {
+pub trait IntegerParity: Copy + Sized {
     fn first(is_even: bool) -> Self;
     fn checked_increment(self) -> Option<Self>;
     fn has_even_parity(self) -> bool;
 }
 
-pub(crate) struct BitParityIter<T>
+pub struct BitParityIter<T>
 where
     T: IntegerParity,
 {
@@ -21,7 +21,7 @@ impl<T> BitParityIter<T>
 where
     T: IntegerParity,
 {
-    pub(crate) fn new(is_even: bool) -> Self {
+    pub(crate) const fn new(is_even: bool) -> Self {
         Self {
             prev_val: None,
             is_even_parity: is_even,
@@ -85,7 +85,7 @@ mod tests {
         let iter = BitParityIter::<usize>::new(true);
         let v = iter.take(4).collect_vec();
 
-        assert_eq!(v, [0x00, 0x3, 0x05, 0x06])
+        assert_eq!(v, [0x00, 0x3, 0x05, 0x06]);
     }
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
         let iter = BitParityIter::<usize>::new(false);
         let v = iter.take(4).collect_vec();
 
-        assert_eq!(v, [0x01, 0x2, 0x04, 0x07])
+        assert_eq!(v, [0x01, 0x2, 0x04, 0x07]);
     }
 
     #[test]
@@ -101,7 +101,7 @@ mod tests {
         let iter = BitParityIter::<u8>::new(true);
         let v = iter.skip(124).collect_vec();
 
-        assert_eq!(v, [0xf9, 0xfa, 0xfc, 0xff])
+        assert_eq!(v, [0xf9, 0xfa, 0xfc, 0xff]);
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
         assert_eq!(
             v,
             [0xf9_u8 as i8, 0xfa_u8 as i8, 0xfc_u8 as i8, 0xff_u8 as i8]
-        )
+        );
     }
 
     #[test]

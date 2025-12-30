@@ -1,5 +1,5 @@
-error: explicit discriminants are not allowed
- --> tests/ui/explicit_discriminant_err.rs:5:5
+error: explicit discriminants are unsupported
+ --> tests/ui/explicit_discriminant_err.rs:6:5
   |
-5 |     A = 0,
-  |     ^
+6 |     A = 0,
+  |     ^^^^^

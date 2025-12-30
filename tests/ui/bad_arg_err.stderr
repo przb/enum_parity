@@ -1,4 +1,4 @@
-error: expected `even` or `odd`
+error: Unknown field: `foo`. Available values: `even`, `odd`
  --> tests/ui/bad_arg_err.rs:3:14
   |
 3 | #[bit_parity(foo)]

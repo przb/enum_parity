@@ -1,0 +1,5 @@
+error: Unsupported `repr` type. Supported types are `u8` `u16` `u32` `u64` `u128` `usize` `i8` `i16` `i32` `i64` `i128` `isize`
+ --> tests/ui/repr_c.rs:4:8
+  |
+4 | #[repr(C)]
+  |        ^

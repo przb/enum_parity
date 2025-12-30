@@ -115,7 +115,6 @@ name = "parity_enum"
 version = "0.1.0-alpha"
 dependencies = [
  "darling",
- "darling_macro",
  "itertools",
  "proc-macro2",
  "quote",

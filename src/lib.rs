@@ -23,6 +23,7 @@ fn try_expand(args: Meta, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
         let value = value_iter
             .next()
             .ok_or_else(|| syn::Error::new_spanned(&variant, "ran out of discriminants"))?;
+
         if variant.discriminant.is_some() {
             return Err(syn::Error::new_spanned(
                 &variant.ident,

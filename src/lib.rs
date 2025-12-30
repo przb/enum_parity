@@ -17,7 +17,7 @@ fn try_expand(args: Meta, mut enum_item: ItemEnum) -> syn::Result<TokenStream> {
         }
     };
 
-    let mut value_iter = BitParityIter::<u64>::new(is_even);
+    let mut value_iter = BitParityIter::<isize>::new(is_even);
 
     for variant in &mut enum_item.variants {
         let value = value_iter

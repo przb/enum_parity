@@ -1,5 +1,6 @@
 use parity_enum::bit_parity;
 
+#[repr(u64)]
 #[bit_parity(even)]
 enum EvenEnum {
     A,

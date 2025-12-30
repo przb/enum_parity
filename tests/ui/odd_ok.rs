@@ -1,6 +1,7 @@
 use parity_enum::bit_parity;
 
 #[bit_parity(odd)]
+#[repr(u64)]
 enum OddEnum {
     A,
     B,
@@ -14,4 +15,3 @@ fn main() {
     assert_eq!(OddEnum::C as u64, 4);
     assert_eq!(OddEnum::D as u64, 7);
 }
-

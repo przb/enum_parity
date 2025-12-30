@@ -1,9 +1,17 @@
-
 [package]
 name = "parity_enum"
 version = "0.1.0-alpha"
 edition = "2024"
 rust-version = "1.87"
+
+repository = "https://github.com/przb/enum_parity"
+description = "enum discriminant bit parity macro"
+authors = ["Ben Przybyszewski"]
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/only_one"
+
+keywords = ["parity", "enum", "discriminant"]
+categories = ["Parsing tools"]
 
 [lib]
 proc-macro = true

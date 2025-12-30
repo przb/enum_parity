@@ -12,5 +12,5 @@ fn ui() {
     t.compile_fail("tests/ui/missing_repr.rs");
     t.compile_fail("tests/ui/explicit_discriminant_err.rs");
     t.compile_fail("tests/ui/bad_arg_err.rs");
-    // t.compile_fail("tests/ui/overflow_err.rs");
+    t.compile_fail("tests/ui/overflow_err.rs");
 }

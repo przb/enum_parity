@@ -1,0 +1,5 @@
+error: ran out of discriminant values for `u8` repr type
+   --> tests/ui/overflow_err.rs:138:5
+    |
+138 |     Ey,
+    |     ^^

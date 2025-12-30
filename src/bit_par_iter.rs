@@ -65,4 +65,20 @@ mod tests {
 
         assert_eq!(v, [0x01, 0x2, 0x04, 0x07])
     }
+
+    #[test]
+    pub fn overflowing_u8_even_parity() {
+        let iter = BitParityIter::<u8>::new(true);
+        let v = iter.skip(124).collect_vec();
+
+        assert_eq!(v, [0xf9, 0xfa, 0xfc, 0xff])
+    }
+
+    #[test]
+    pub fn overflowing_u8_odd_parity() {
+        let iter = BitParityIter::<u8>::new(false);
+        let v = iter.skip(124).collect_vec();
+
+        assert_eq!(v, [0xf8, 0xfb, 0xfd, 0xfe]);
+    }
 }

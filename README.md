@@ -1,0 +1,3 @@
+# Enum Bit Parity
+
+TODO

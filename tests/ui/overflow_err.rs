@@ -1,4 +1,4 @@
-use bit_parity::bit_parity;
+use parity_enum::bit_parity;
 
 #[bit_parity(even)]
 #[repr(u8)]

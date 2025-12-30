@@ -1,3 +1,8 @@
+#![expect(
+    clippy::cast_possible_truncation,
+    reason = "all occurrences of casting are 1"
+)]
+
 pub trait IntegerParity: Copy + Sized {
     fn first(is_even: bool) -> Self;
     fn checked_increment(self) -> Option<Self>;

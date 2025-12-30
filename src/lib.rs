@@ -23,7 +23,7 @@ struct BitParityArgs {
 
 fn generic_expand<T: IntegerParity + darling::ToTokens>(
     repr: IntRepr,
-    args: BitParityArgs,
+    args: &BitParityArgs,
     mut enum_item: ItemEnum,
 ) -> syn::Result<TokenStream> {
     let mut bpi = BitParityIter::<T>::new(matches!(args.parity, Parity::Even));
@@ -33,23 +33,23 @@ fn generic_expand<T: IntegerParity + darling::ToTokens>(
                 &variant,
                 "explicit discriminants are unsupported",
             ));
-        } else {
-            let next_disc = bpi.next().ok_or_else(|| {
-                syn::Error::new_spanned(
-                    &variant,
-                    format!("ran out of discriminant values for `{repr}` repr type",),
-                )
-            })?;
-
-            variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));
         }
+
+        let next_disc = bpi.next().ok_or_else(|| {
+            syn::Error::new_spanned(
+                &variant,
+                format!("ran out of discriminant values for `{repr}` repr type",),
+            )
+        })?;
+
+        variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));
     }
 
     Ok(quote! {#enum_item})
 }
 fn specialize_expand(
     repr: IntRepr,
-    args: BitParityArgs,
+    args: &BitParityArgs,
     enum_item: ItemEnum,
 ) -> syn::Result<TokenStream> {
     match repr {
@@ -68,7 +68,7 @@ fn specialize_expand(
     }
 }
 
-fn try_expand(args: BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStream> {
+fn try_expand(args: &BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStream> {
     let repr = IntRepr::from_attributes(&enum_item.attrs)?;
     specialize_expand(repr, args, enum_item)
 }
@@ -81,5 +81,5 @@ pub fn bit_parity(
     let args = parse_macro_input!(args as BitParityArgs);
     let enum_item = parse_macro_input!(input as ItemEnum);
 
-    try_expand(args, enum_item).map_or_else(|e| e.into_compile_error().into(), Into::into)
+    try_expand(&args, enum_item).map_or_else(|e| e.into_compile_error().into(), Into::into)
 }

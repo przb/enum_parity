@@ -1,4 +1,4 @@
-use parity_enum::bit_parity;
+use enum_parity::bit_parity;
 
 #[bit_parity(foo)]
 enum BadArg {

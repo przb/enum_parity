@@ -10,10 +10,10 @@ repository = "https://github.com/przb/enum_parity"
 description = "a macro that enforces enum discriminant bit parity"
 authors = ["Ben Przybyszewski"]
 license = "MIT OR Apache-2.0"
-documentation = "https://docs.rs/only_one"
+documentation = "https://docs.rs/enum_parity"
 
 keywords = ["parity", "enum", "discriminant"]
-categories = ["Parsing tools"]
+categories = ["Encoding", "Mathematics"]
 
 [lib]
 proc-macro = true

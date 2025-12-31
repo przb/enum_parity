@@ -1,4 +1,4 @@
-//! This crate exposes the [`bit_parity`] macro to enforce a given bit parity
+//! This crate exposes the [`macro@bit_parity`] macro to enforce a given bit parity
 //!
 //! # Examples
 //!
@@ -115,6 +115,24 @@ fn try_expand(args: &BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStr
     specialize_expand(repr, args, enum_item)
 }
 
+/// An attribute macro for enums that enforces discriminant bit parity
+///
+/// See the [crate-level](crate) docs for examples.
+///
+/// # Macro Parameters
+/// The only accepted parameters to the macro is `odd` and `even`
+///
+/// # Examples
+///
+/// In order to use even parity for enum discriminants:
+/// ```skip
+/// #[bit_parity(even)]
+/// ```
+///
+/// In order to use odd parity for enum discriminants:
+/// ```skip
+/// #[bit_parity(odd)]
+/// ```
 #[proc_macro_attribute]
 pub fn bit_parity(
     args: proc_macro::TokenStream,

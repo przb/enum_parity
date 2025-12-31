@@ -1,3 +1,45 @@
+//! This crate exposes the [`bit_parity`] macro to enforce a given bit parity
+//!
+//! # Examples
+//!
+//! ## Even Bit Parity
+//! ```
+//! use enum_parity::bit_parity;
+//!
+//! #[bit_parity(even)]
+//! #[repr(u8)]
+//! pub enum EvenSample {
+//!     Foo,
+//!     Bar,
+//!     Baz,
+//!     Quo,
+//! }
+//!
+//! assert_eq!(EvenSample::Foo as u8, 0x00);
+//! assert_eq!(EvenSample::Bar as u8, 0x03);
+//! assert_eq!(EvenSample::Baz as u8, 0x05);
+//! assert_eq!(EvenSample::Quo as u8, 0x06);
+//! ```
+//!
+//! ## Odd Bit Parity
+//! ```
+//! use enum_parity::bit_parity;
+//!
+//! #[bit_parity(odd)]
+//! #[repr(u8)]
+//! pub enum OddSample {
+//!     Lorem,
+//!     Ipsum,
+//!     Dolor,
+//!     Sit,
+//! }
+//!
+//! assert_eq!(OddSample::Lorem as u8, 0x01);
+//! assert_eq!(OddSample::Ipsum as u8, 0x02);
+//! assert_eq!(OddSample::Dolor as u8, 0x04);
+//! assert_eq!(OddSample::Sit as u8, 0x07);
+//! ```
+
 mod bit_par_iter;
 mod int_repr;
 

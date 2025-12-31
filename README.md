@@ -16,7 +16,7 @@ enum_parity = "0.1.0"
 
 To use in your crate:
 ```rust
-use parity_enum::bit_parity;
+use enum_parity::bit_parity;
 
 #[bit_parity(even)]
 #[repr(u8)]

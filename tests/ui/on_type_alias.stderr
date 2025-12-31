@@ -1,0 +1,5 @@
+error: expected `enum`
+  --> tests/ui/on_type_alias.rs:11:1
+   |
+11 | type MyFoo = Foo;
+   | ^^^^

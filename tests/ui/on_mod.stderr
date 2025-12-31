@@ -1,0 +1,5 @@
+error: expected `enum`
+ --> tests/ui/on_mod.rs:5:1
+  |
+5 | mod foo {
+  | ^^^

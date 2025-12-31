@@ -18,4 +18,13 @@ fn ui() {
     t.compile_fail("tests/ui/explicit_discriminant_err.rs");
     t.compile_fail("tests/ui/bad_arg_err.rs");
     t.compile_fail("tests/ui/overflow_err.rs");
+
+    t.compile_fail("tests/ui/on_struct.rs");
+    t.compile_fail("tests/ui/on_mod.rs");
+    t.compile_fail("tests/ui/on_trait.rs");
+    t.compile_fail("tests/ui/on_use.rs");
+    t.compile_fail("tests/ui/on_fn.rs");
+    t.compile_fail("tests/ui/on_type_alias.rs");
+    t.compile_fail("tests/ui/on_const.rs");
+    t.compile_fail("tests/ui/on_impl.rs");
 }

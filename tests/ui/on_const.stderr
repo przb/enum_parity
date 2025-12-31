@@ -1,0 +1,5 @@
+error: expected `enum`
+ --> tests/ui/on_const.rs:5:1
+  |
+5 | const FOO: u8 = 67;
+  | ^^^^^

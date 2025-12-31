@@ -1,0 +1,5 @@
+error: expected `enum`
+ --> tests/ui/on_trait.rs:5:1
+  |
+5 | trait Foo {}
+  | ^^^^^

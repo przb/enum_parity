@@ -1,0 +1,5 @@
+error: expected `enum`
+ --> tests/ui/on_use.rs:5:1
+  |
+5 | use std::fs::File;
+  | ^^^

@@ -1,5 +1,5 @@
 [<img alt="docs.rs" src="https://img.shields.io/docsrs/enum_parity" height="20">](https://docs.rs/enum_parity)
-[<img alt="build status" src="https://img.shields.io/github/actions/workflow/status/przb/enum_parity/rust.yml" height="20">](https://github.com/przb/enum_parity/actions)
+[<img alt="build status" src="https://img.shields.io/github/actions/workflow/status/przb/enum_parity/check.yml" height="20">](https://github.com/przb/enum_parity/actions)
 
 # Enum Bit Parity
 

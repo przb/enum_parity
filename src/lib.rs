@@ -58,6 +58,20 @@ enum Parity {
     Odd,
 }
 
+// TODO could probably get rid of this for some provided method from darling?
+impl Display for Parity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Parity::Even => "even",
+                Parity::Odd => "odd",
+            }
+        )
+    }
+}
+
 #[derive(Debug, Clone, FromMeta)]
 #[darling(derive_syn_parse)]
 struct BitParityArgs {
@@ -70,11 +84,14 @@ struct BitParityArgs {
 struct Ctx {
     repr: IntRepr,
     parity: Parity,
-    #[expect(unused)]
     allow_explicit_overrides: bool,
 }
 
-fn discrimin_val<N>(ctx: &Ctx, expr: Expr) -> syn::Result<N>
+fn discrimin_val<N>(
+    ctx: &Ctx,
+    (_eq_tok, expr): (syn::token::Eq, Expr),
+    iter: &mut BitParityIter<N>,
+) -> syn::Result<N>
 where
     N: IntegerParity + darling::ToTokens + FromStr,
     N::Err: Display,
@@ -84,11 +101,32 @@ where
         ..
     }) = expr.clone()
     {
-        litint.base10_parse::<N>().ok()
+        let lit = litint.base10_parse::<N>()?;
+        if lit.has_parity(ctx.parity) || ctx.allow_explicit_overrides {
+            lit
+        } else {
+            return Err(syn::Error::new(
+                expr.span(),
+                format!(
+                    "explicit discriminant does not have `{}` parity",
+                    ctx.parity,
+                ),
+            ));
+        }
     } else {
-        None
+        iter.next().ok_or_else(|| {
+            syn::Error::new(
+                expr.span(),
+                format!(
+                    "ran out of discriminant values for `{}` repr type",
+                    ctx.repr
+                ),
+            )
+        })?
     };
-    x.ok_or(syn::Error::new(expr.span(), "invalid discriminant"))
+
+    Ok(x)
+    // x.ok_or(syn::Error::new(expr.span(), "invalid discriminant"))
 }
 
 fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>
@@ -99,7 +137,7 @@ where
     let mut bpi = BitParityIter::<T>::new(ctx.parity);
     for variant in &mut enum_item.variants {
         let next_disc = match variant.discriminant.clone() {
-            Some((_eq_tok, expr)) => discrimin_val(ctx, expr)?,
+            Some(disc) => discrimin_val(ctx, disc, &mut bpi)?,
             None => bpi.next().ok_or_else(|| {
                 syn::Error::new_spanned(
                     &variant,

@@ -65,8 +65,8 @@ impl Display for Parity {
             f,
             "{}",
             match self {
-                Parity::Even => "even",
-                Parity::Odd => "odd",
+                Self::Even => "even",
+                Self::Odd => "odd",
             }
         )
     }
@@ -132,19 +132,18 @@ where
     for next_val in bpi {
         if explicit_discriminants.contains(&next_val) {
             continue;
-        } else {
-            return Ok(next_val);
         }
+        return Ok(next_val);
     }
 
     // if we got out of the for loop without returning, then we ran out of discriminants
-    return Err(syn::Error::new_spanned(
-        &variant,
+    Err(syn::Error::new_spanned(
+        variant,
         format!(
             "ran out of discriminant values for `{}` repr type",
             ctx.repr
         ),
-    ));
+    ))
 }
 
 fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>

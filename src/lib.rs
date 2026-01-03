@@ -68,7 +68,7 @@ struct BitParityArgs {
 struct Ctx {
     repr: IntRepr,
     parity: Parity,
-    #[allow(unused)]
+    #[expect(unused)]
     allow_explicit_overrides: bool,
 }
 

@@ -169,11 +169,7 @@ where
             Some(disc) => {
                 let next_disc = parse_discriminant(ctx, disc)?;
 
-                // update the bpi iter so that it only uses values greater than the last explicit discriminants
-                // this behavior echos the default rust discriminant behavior
-                while let Some(val) = bpi.next()
-                    && val < next_disc
-                {}
+                bpi.set_override(next_disc);
 
                 next_disc
             }

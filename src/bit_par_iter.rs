@@ -33,6 +33,9 @@ where
             parity,
         }
     }
+    pub(crate) const fn set_override(&mut self, override_val: T) {
+        self.prev_val = Some(override_val);
+    }
 }
 
 impl<T> Iterator for BitParityIter<T>

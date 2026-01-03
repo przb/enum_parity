@@ -96,37 +96,33 @@ where
     N: IntegerParity + darling::ToTokens + FromStr,
     N::Err: Display,
 {
-    let x = if let Expr::Lit(syn::ExprLit {
-        lit: syn::Lit::Int(litint),
+    let Expr::Lit(syn::ExprLit {
+        lit: syn::Lit::Int(lit),
         ..
     }) = expr.clone()
-    {
-        let lit = litint.base10_parse::<N>()?;
-        if lit.has_parity(ctx.parity) || ctx.allow_explicit_overrides {
-            lit
-        } else {
-            return Err(syn::Error::new(
-                expr.span(),
-                format!(
-                    "explicit discriminant does not have `{}` parity",
-                    ctx.parity,
-                ),
-            ));
-        }
-    } else {
-        iter.next().ok_or_else(|| {
+    else {
+        // the expression was not a literal
+        return iter.next().ok_or_else(|| {
             syn::Error::new(
                 expr.span(),
-                format!(
-                    "ran out of discriminant values for `{}` repr type",
-                    ctx.repr
-                ),
+                "Invalid or unsupported enum discriminant value",
             )
-        })?
+        });
     };
 
-    Ok(x)
-    // x.ok_or(syn::Error::new(expr.span(), "invalid discriminant"))
+    let lit = lit.base10_parse::<N>()?;
+
+    if lit.has_parity(ctx.parity) || ctx.allow_explicit_overrides {
+        Ok(lit)
+    } else {
+        Err(syn::Error::new(
+            expr.span(),
+            format!(
+                "explicit discriminant does not have `{}` parity",
+                ctx.parity,
+            ),
+        ))
+    }
 }
 
 fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>

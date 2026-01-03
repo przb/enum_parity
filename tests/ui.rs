@@ -12,6 +12,9 @@ fn ui() {
     // even parity with discriminants
     t.pass("tests/ui/even_ok_explicit.rs");
     t.compile_fail("tests/ui/even_with_odd_no_override.rs");
+    t.pass("tests/ui/even_with_odd_with_override_nonmonotonic.rs");
+    t.compile_fail("tests/ui/even_with_odd_with_override_nonmonotonic_reassign.rs");
+
     t.pass("tests/ui/even_with_odd_with_override.rs");
 
     // signed reprs

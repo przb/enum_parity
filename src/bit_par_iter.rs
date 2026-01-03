@@ -33,7 +33,10 @@ where
             parity,
         }
     }
-    pub(crate) const fn set_override(&mut self, override_val: T) {
+    pub(crate) fn set_override(&mut self, override_val: T)
+    where
+        T: Ord,
+    {
         self.prev_val = Some(override_val);
     }
 }

@@ -43,12 +43,12 @@
 mod bit_par_iter;
 mod int_repr;
 
-use std::{collections::HashSet, fmt::Display, str::FromStr};
+use std::{collections::HashMap, fmt::Display, str::FromStr};
 
 use bit_par_iter::{BitParityIter, IntegerParity};
 use darling::{FromAttributes, FromMeta};
 use int_repr::IntRepr;
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{Expr, ItemEnum, Variant, parse_macro_input, spanned::Spanned};
 
@@ -123,15 +123,22 @@ fn next_discriminant<N>(
     ctx: &Ctx,
     bpi: &mut BitParityIter<N>,
     variant: &Variant,
-    explicit_discriminants: &HashSet<N>,
+    explicit_discriminants: &HashMap<N, Span>,
 ) -> syn::Result<N>
 where
     N: IntegerParity + Eq + std::hash::Hash,
 {
     // TODO not a huge fan of the control flow in this function...
     for next_val in bpi {
-        if explicit_discriminants.contains(&next_val) {
-            continue;
+        if let Some(span) = explicit_discriminants.get(&next_val) {
+            let mut err = syn::Error::new(*span, "previous assignment here");
+
+            err.combine(syn::Error::new(
+                variant.span(),
+                "discriminant value is already assigned",
+            ));
+
+            return Err(err);
         }
         return Ok(next_val);
     }
@@ -152,16 +159,16 @@ where
     T::Err: Display,
 {
     // iterate through all the enum variants, and validate all the explicit discriminants
-    let explicit_discriminants = enum_item
+    let mut explicit_discriminants = enum_item
         .variants
         .iter()
         .filter_map(|variant| {
             variant
                 .discriminant
                 .clone()
-                .map(|disc| parse_discriminant::<T>(ctx, disc))
+                .map(|disc| parse_discriminant::<T>(ctx, disc).map(|val| (val, variant.span())))
         })
-        .collect::<syn::Result<HashSet<T>>>()?;
+        .collect::<syn::Result<HashMap<T, Span>>>()?;
 
     let mut bpi = BitParityIter::<T>::new(ctx.parity);
     for variant in &mut enum_item.variants {
@@ -173,7 +180,13 @@ where
 
                 next_disc
             }
-            None => next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?,
+
+            None => {
+                let next_disc = next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?;
+
+                explicit_discriminants.insert(next_disc, variant.span());
+                next_disc
+            }
         };
 
         variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));

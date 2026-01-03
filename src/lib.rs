@@ -149,7 +149,7 @@ where
 
 fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>
 where
-    T: IntegerParity + darling::ToTokens + FromStr + Eq + std::hash::Hash + std::fmt::Debug,
+    T: IntegerParity + darling::ToTokens + FromStr + Eq + std::hash::Hash + std::fmt::Debug + Ord,
     T::Err: Display,
 {
     // iterate through all the enum variants, and validate all the explicit discriminants
@@ -167,7 +167,17 @@ where
     let mut bpi = BitParityIter::<T>::new(ctx.parity);
     for variant in &mut enum_item.variants {
         let next_disc = match variant.discriminant.clone() {
-            Some(disc) => parse_discriminant(ctx, disc)?,
+            Some(disc) => {
+                let next_disc = parse_discriminant(ctx, disc)?;
+
+                // update the bpi iter so that it only uses values greater than the last explicit discriminants
+                // this behavior echos the default rust discriminant behavior
+                while let Some(val) = bpi.next()
+                    && val < next_disc
+                {}
+
+                next_disc
+            }
             None => next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?,
         };
 

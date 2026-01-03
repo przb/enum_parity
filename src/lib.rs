@@ -43,14 +43,14 @@
 mod bit_par_iter;
 mod int_repr;
 
-use std::{fmt::Display, str::FromStr};
+use std::{collections::HashSet, fmt::Display, str::FromStr};
 
 use bit_par_iter::{BitParityIter, IntegerParity};
 use darling::{FromAttributes, FromMeta};
 use int_repr::IntRepr;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Expr, ItemEnum, parse_macro_input, spanned::Spanned};
+use syn::{Expr, ItemEnum, Variant, parse_macro_input, spanned::Spanned};
 
 #[derive(Copy, Clone, Debug, FromMeta)]
 enum Parity {
@@ -87,11 +87,7 @@ struct Ctx {
     allow_explicit_overrides: bool,
 }
 
-fn discrimin_val<N>(
-    ctx: &Ctx,
-    (_eq_tok, expr): (syn::token::Eq, Expr),
-    iter: &mut BitParityIter<N>,
-) -> syn::Result<N>
+fn parse_discriminant<N>(ctx: &Ctx, (_eq_tok, expr): (syn::token::Eq, Expr)) -> syn::Result<N>
 where
     N: IntegerParity + darling::ToTokens + FromStr,
     N::Err: Display,
@@ -101,13 +97,11 @@ where
         ..
     }) = expr.clone()
     else {
-        // the expression was not a literal
-        return iter.next().ok_or_else(|| {
-            syn::Error::new(
-                expr.span(),
-                "Invalid or unsupported enum discriminant value",
-            )
-        });
+        // the expression was not a valid literal
+        return Err(syn::Error::new(
+            expr.span(),
+            "Invalid or unsupported enum discriminant value",
+        ));
     };
 
     let lit = lit.base10_parse::<N>()?;
@@ -125,24 +119,56 @@ where
     }
 }
 
+fn next_discriminant<N>(
+    ctx: &Ctx,
+    bpi: &mut BitParityIter<N>,
+    variant: &Variant,
+    explicit_discriminants: &HashSet<N>,
+) -> syn::Result<N>
+where
+    N: IntegerParity + Eq + std::hash::Hash,
+{
+    // TODO not a huge fan of the control flow in this function...
+    for next_val in bpi {
+        if explicit_discriminants.contains(&next_val) {
+            continue;
+        } else {
+            return Ok(next_val);
+        }
+    }
+
+    // if we got out of the for loop without returning, then we ran out of discriminants
+    return Err(syn::Error::new_spanned(
+        &variant,
+        format!(
+            "ran out of discriminant values for `{}` repr type",
+            ctx.repr
+        ),
+    ));
+}
+
 fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>
 where
-    T: IntegerParity + darling::ToTokens + FromStr,
+    T: IntegerParity + darling::ToTokens + FromStr + Eq + std::hash::Hash + std::fmt::Debug,
     T::Err: Display,
 {
+    // iterate through all the enum variants, and validate all the explicit discriminants
+    let explicit_discriminants = enum_item
+        .variants
+        .iter()
+        .filter_map(|variant| {
+            variant
+                .discriminant
+                .clone()
+                .map(|disc| parse_discriminant::<T>(ctx, disc))
+        })
+        .collect::<syn::Result<HashSet<T>>>()?;
+
     let mut bpi = BitParityIter::<T>::new(ctx.parity);
     for variant in &mut enum_item.variants {
         let next_disc = match variant.discriminant.clone() {
-            Some(disc) => discrimin_val(ctx, disc, &mut bpi)?,
-            None => bpi.next().ok_or_else(|| {
-                syn::Error::new_spanned(
-                    &variant,
-                    format!(
-                        "ran out of discriminant values for `{}` repr type",
-                        ctx.repr
-                    ),
-                )
-            })?,
+            Some(disc) => parse_discriminant(ctx, disc)?,
+            None => next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?,
         };
 
         variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));

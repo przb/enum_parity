@@ -43,12 +43,14 @@
 mod bit_par_iter;
 mod int_repr;
 
+use std::{fmt::Display, str::FromStr};
+
 use bit_par_iter::{BitParityIter, IntegerParity};
 use darling::{FromAttributes, FromMeta};
 use int_repr::IntRepr;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ItemEnum, parse_macro_input};
+use syn::{Expr, ItemEnum, parse_macro_input, spanned::Spanned};
 
 #[derive(Copy, Clone, Debug, FromMeta)]
 enum Parity {
@@ -72,28 +74,42 @@ struct Ctx {
     allow_explicit_overrides: bool,
 }
 
-fn generic_expand<T: IntegerParity + darling::ToTokens>(
-    ctx: &Ctx,
-    mut enum_item: ItemEnum,
-) -> syn::Result<TokenStream> {
-    let mut bpi = BitParityIter::<T>::new(matches!(ctx.parity, Parity::Even));
-    for variant in &mut enum_item.variants {
-        if variant.discriminant.is_some() {
-            return Err(syn::Error::new_spanned(
-                &variant,
-                "explicit discriminants are unsupported",
-            ));
-        }
+fn discrimin_val<N>(ctx: &Ctx, expr: Expr) -> syn::Result<N>
+where
+    N: IntegerParity + darling::ToTokens + FromStr,
+    N::Err: Display,
+{
+    let x = if let Expr::Lit(syn::ExprLit {
+        lit: syn::Lit::Int(litint),
+        ..
+    }) = expr.clone()
+    {
+        litint.base10_parse::<N>().ok()
+    } else {
+        None
+    };
+    x.ok_or(syn::Error::new(expr.span(), "invalid discriminant"))
+}
 
-        let next_disc = bpi.next().ok_or_else(|| {
-            syn::Error::new_spanned(
-                &variant,
-                format!(
-                    "ran out of discriminant values for `{}` repr type",
-                    ctx.repr
-                ),
-            )
-        })?;
+fn generic_expand<T>(ctx: &Ctx, mut enum_item: ItemEnum) -> syn::Result<TokenStream>
+where
+    T: IntegerParity + darling::ToTokens + FromStr,
+    T::Err: Display,
+{
+    let mut bpi = BitParityIter::<T>::new(ctx.parity);
+    for variant in &mut enum_item.variants {
+        let next_disc = match variant.discriminant.clone() {
+            Some((_eq_tok, expr)) => discrimin_val(ctx, expr)?,
+            None => bpi.next().ok_or_else(|| {
+                syn::Error::new_spanned(
+                    &variant,
+                    format!(
+                        "ran out of discriminant values for `{}` repr type",
+                        ctx.repr
+                    ),
+                )
+            })?,
+        };
 
         variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));
     }

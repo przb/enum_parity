@@ -61,14 +61,22 @@ enum Parity {
 struct BitParityArgs {
     #[darling(flatten)]
     parity: Parity,
+    #[darling(default)]
+    allow_explicit_overrides: bool,
+}
+
+struct Ctx {
+    repr: IntRepr,
+    parity: Parity,
+    #[allow(unused)]
+    allow_explicit_overrides: bool,
 }
 
 fn generic_expand<T: IntegerParity + darling::ToTokens>(
-    repr: IntRepr,
-    args: &BitParityArgs,
+    ctx: &Ctx,
     mut enum_item: ItemEnum,
 ) -> syn::Result<TokenStream> {
-    let mut bpi = BitParityIter::<T>::new(matches!(args.parity, Parity::Even));
+    let mut bpi = BitParityIter::<T>::new(matches!(ctx.parity, Parity::Even));
     for variant in &mut enum_item.variants {
         if variant.discriminant.is_some() {
             return Err(syn::Error::new_spanned(
@@ -80,7 +88,10 @@ fn generic_expand<T: IntegerParity + darling::ToTokens>(
         let next_disc = bpi.next().ok_or_else(|| {
             syn::Error::new_spanned(
                 &variant,
-                format!("ran out of discriminant values for `{repr}` repr type",),
+                format!(
+                    "ran out of discriminant values for `{}` repr type",
+                    ctx.repr
+                ),
             )
         })?;
 
@@ -89,30 +100,31 @@ fn generic_expand<T: IntegerParity + darling::ToTokens>(
 
     Ok(quote! {#enum_item})
 }
-fn specialize_expand(
-    repr: IntRepr,
-    args: &BitParityArgs,
-    enum_item: ItemEnum,
-) -> syn::Result<TokenStream> {
-    match repr {
-        IntRepr::U8 => generic_expand::<u8>(repr, args, enum_item),
-        IntRepr::U16 => generic_expand::<u16>(repr, args, enum_item),
-        IntRepr::U32 => generic_expand::<u32>(repr, args, enum_item),
-        IntRepr::U64 => generic_expand::<u64>(repr, args, enum_item),
-        IntRepr::U128 => generic_expand::<u128>(repr, args, enum_item),
-        IntRepr::Usize => generic_expand::<usize>(repr, args, enum_item),
-        IntRepr::I8 => generic_expand::<i8>(repr, args, enum_item),
-        IntRepr::I16 => generic_expand::<i16>(repr, args, enum_item),
-        IntRepr::I32 => generic_expand::<i32>(repr, args, enum_item),
-        IntRepr::I64 => generic_expand::<i64>(repr, args, enum_item),
-        IntRepr::I128 => generic_expand::<i128>(repr, args, enum_item),
-        IntRepr::Isize => generic_expand::<isize>(repr, args, enum_item),
+fn specialize_expand(ctx: &Ctx, enum_item: ItemEnum) -> syn::Result<TokenStream> {
+    match ctx.repr {
+        IntRepr::U8 => generic_expand::<u8>(ctx, enum_item),
+        IntRepr::U16 => generic_expand::<u16>(ctx, enum_item),
+        IntRepr::U32 => generic_expand::<u32>(ctx, enum_item),
+        IntRepr::U64 => generic_expand::<u64>(ctx, enum_item),
+        IntRepr::U128 => generic_expand::<u128>(ctx, enum_item),
+        IntRepr::Usize => generic_expand::<usize>(ctx, enum_item),
+        IntRepr::I8 => generic_expand::<i8>(ctx, enum_item),
+        IntRepr::I16 => generic_expand::<i16>(ctx, enum_item),
+        IntRepr::I32 => generic_expand::<i32>(ctx, enum_item),
+        IntRepr::I64 => generic_expand::<i64>(ctx, enum_item),
+        IntRepr::I128 => generic_expand::<i128>(ctx, enum_item),
+        IntRepr::Isize => generic_expand::<isize>(ctx, enum_item),
     }
 }
 
 fn try_expand(args: &BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStream> {
     let repr = IntRepr::from_attributes(&enum_item.attrs)?;
-    specialize_expand(repr, args, enum_item)
+    let ctx = Ctx {
+        repr,
+        parity: args.parity,
+        allow_explicit_overrides: args.allow_explicit_overrides,
+    };
+    specialize_expand(&ctx, enum_item)
 }
 
 /// An attribute macro for enums that enforces discriminant bit parity

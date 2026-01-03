@@ -2,7 +2,7 @@ use enum_parity::bit_parity;
 
 #[bit_parity(even, allow_explicit_overrides = true)]
 #[repr(u64)]
-enum OddEnum {
+enum EvenEnum {
     A, // 0x00
     B, // 0x03
     C = 0x0a,

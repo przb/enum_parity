@@ -29,11 +29,12 @@ itertools = "0.14.0"
 trybuild = { version = ">=1.0", features = ["diff"] }
 
 [lints]
-clippy.cargo = "warn"
-clippy.correctness = "warn"
-clippy.suspicious = "warn"
-clippy.complexity = "warn"
-clippy.perf = "warn"
-clippy.style = "warn"
-clippy.pedantic = "warn"
-clippy.nursery = "warn"
+clippy.cargo = { level = "warn", priority = -1 }
+clippy.correctness = { level = "warn", priority = -1 }
+clippy.suspicious = { level = "warn", priority = -1 }
+clippy.complexity = { level = "warn", priority = -1 }
+clippy.perf = { level = "warn", priority = -1 }
+clippy.style = { level = "warn", priority = -1 }
+clippy.pedantic = { level = "warn", priority = -1 }
+clippy.nursery = { level = "warn", priority = -1 }
+clippy.option_if_let_else = "allow" # the darling `default` attribute causes issues with this lint

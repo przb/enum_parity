@@ -129,7 +129,7 @@ where
     N: IntegerParity + Eq + std::hash::Hash,
 {
     // TODO not a huge fan of the control flow in this function...
-    for next_val in bpi {
+    if let Some(next_val) = bpi.next() {
         if let Some(span) = explicit_discriminants.get(&next_val) {
             let mut err = syn::Error::new(*span, "previous assignment here");
 
@@ -172,21 +172,17 @@ where
 
     let mut bpi = BitParityIter::<T>::new(ctx.parity);
     for variant in &mut enum_item.variants {
-        let next_disc = match variant.discriminant.clone() {
-            Some(disc) => {
-                let next_disc = parse_discriminant(ctx, disc)?;
+        let next_disc = if let Some(disc) = variant.discriminant.clone() {
+            let next_disc = parse_discriminant(ctx, disc)?;
 
-                bpi.set_override(next_disc);
+            bpi.set_override(next_disc);
 
-                next_disc
-            }
+            next_disc
+        } else {
+            let next_disc = next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?;
 
-            None => {
-                let next_disc = next_discriminant(ctx, &mut bpi, variant, &explicit_discriminants)?;
-
-                explicit_discriminants.insert(next_disc, variant.span());
-                next_disc
-            }
+            explicit_discriminants.insert(next_disc, variant.span());
+            next_disc
         };
 
         variant.discriminant = Some((syn::token::Eq::default(), syn::parse_quote!(#next_disc)));

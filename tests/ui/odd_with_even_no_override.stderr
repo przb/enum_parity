@@ -1,0 +1,5 @@
+error: explicit discriminant does not have `odd` parity
+ --> tests/ui/odd_with_even_no_override.rs:7:9
+  |
+7 |     B = 0x03,
+  |         ^^^^

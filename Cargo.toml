@@ -1,6 +1,6 @@
 [package]
 name = "enum_parity"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.87"
 
@@ -26,14 +26,18 @@ syn = { version = "2.0.111", features = ["extra-traits", "fold", "full", "visit"
 itertools = "0.14.0"
 
 [dev-dependencies]
+postcard = { version = "1.1.3", features = ["use-std"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_repr = "0.1.20"
 trybuild = { version = ">=1.0", features = ["diff"] }
 
 [lints]
-clippy.cargo = "warn"
-clippy.correctness = "warn"
-clippy.suspicious = "warn"
-clippy.complexity = "warn"
-clippy.perf = "warn"
-clippy.style = "warn"
-clippy.pedantic = "warn"
-clippy.nursery = "warn"
+clippy.cargo = { level = "warn", priority = -1 }
+clippy.correctness = { level = "warn", priority = -1 }
+clippy.suspicious = { level = "warn", priority = -1 }
+clippy.complexity = { level = "warn", priority = -1 }
+clippy.perf = { level = "warn", priority = -1 }
+clippy.style = { level = "warn", priority = -1 }
+clippy.pedantic = { level = "warn", priority = -1 }
+clippy.nursery = { level = "warn", priority = -1 }
+clippy.option_if_let_else = "allow" # the darling `default` attribute causes issues with this lint

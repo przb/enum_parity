@@ -93,7 +93,7 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
 
 [[package]]
 name = "enum_parity"
-version = "0.2.0-alpha"
+version = "0.2.0"
 dependencies = [
  "darling",
  "itertools",

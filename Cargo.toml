@@ -1,6 +1,6 @@
 [package]
 name = "enum_parity"
-version = "0.2.0-alpha"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.87"
 

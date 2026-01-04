@@ -14,8 +14,10 @@ fn ui() {
     t.compile_fail("tests/ui/even_with_odd_no_override.rs");
     t.pass("tests/ui/even_with_odd_with_override_nonmonotonic.rs");
     t.compile_fail("tests/ui/even_with_odd_with_override_nonmonotonic_reassign.rs");
-
     t.pass("tests/ui/even_with_odd_with_override.rs");
+
+    // using a const for an enum discriminant
+    t.compile_fail("tests/ui/const_discrimin.rs");
 
     // signed reprs
     t.pass("tests/ui/repr_u8.rs");

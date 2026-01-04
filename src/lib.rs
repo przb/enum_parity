@@ -146,7 +146,7 @@ where
         // the expression was not a valid literal
         return Err(syn::Error::new(
             expr.span(),
-            "Invalid or unsupported enum discriminant value",
+            "Invalid or unsupported enum discriminant value. Only literals are allowed",
         ));
     };
 

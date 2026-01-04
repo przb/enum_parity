@@ -1,0 +1,5 @@
+error: Invalid or unsupported enum discriminant value. Only literals are allowed
+ --> tests/ui/const_discrimin.rs:9:9
+  |
+9 |     B = SOME_B,
+  |         ^^^^^^

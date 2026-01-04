@@ -8,6 +8,7 @@ fn ui() {
     t.pass("tests/ui/non_unit_enums.rs");
     t.pass("tests/ui/cfg_attr.rs");
     t.pass("tests/ui/explicit_discriminant.rs");
+    t.pass("tests/ui/all_types_valid.rs");
 
     // even parity with discriminants
     t.pass("tests/ui/even_ok_explicit.rs");

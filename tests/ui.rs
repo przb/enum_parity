@@ -16,6 +16,9 @@ fn ui() {
     t.compile_fail("tests/ui/even_with_odd_with_override_nonmonotonic_reassign.rs");
     t.pass("tests/ui/even_with_odd_with_override.rs");
 
+    // odd parity with discriminants
+    t.compile_fail("tests/ui/odd_with_even_no_override.rs");
+
     // using a const for an enum discriminant
     t.compile_fail("tests/ui/const_discrimin.rs");
 

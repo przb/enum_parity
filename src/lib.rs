@@ -265,13 +265,20 @@ fn try_expand(args: &BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStr
 
 /// An attribute macro for enums that enforces discriminant bit parity
 ///
-/// See the [crate-level](crate) docs for examples.
+/// See the [crate-level](crate) docs for more examples.
 ///
 /// # Macro Parameters
-/// The only accepted parameters to the macro is `odd` and `even`
+/// - `even` enforces even bit parity
+/// - `odd` enforces odd bit parity
+/// - `allow_explicit_overrides` accepts a boolean. It causes an explicit enum discriminant that does not match the given bit partity to:
+///   - If `true`, successfully compile.
+///   - If `false`, fail to compile
+///
+///   `allow_explicit_overrides` is optional, and defaults to `false`.
 ///
 /// # Examples
 ///
+/// ## Simple Usage
 /// In order to use even parity for enum discriminants:
 /// ```skip
 /// #[bit_parity(even)]
@@ -281,6 +288,39 @@ fn try_expand(args: &BitParityArgs, enum_item: ItemEnum) -> syn::Result<TokenStr
 /// ```skip
 /// #[bit_parity(odd)]
 /// ```
+///
+/// ## Explicit Discriminant Values
+/// By default, assigning a value to an enum discriminant that does not have the matching bit parity fails to compile
+/// ```compile_fail
+/// # use enum_parity::bit_parity;
+/// #[repr(u8)]
+/// #[bit_parity(even)]
+/// enum Foo {
+///   // this fails to compile, because `0x01` does not have even bit parity
+///   A = 0x01,
+///   B,
+///   C,
+/// }
+/// ```
+///
+/// If you want to allow explicit discriminants that do not match the given bit parity, add `allow_explicit_overrides`
+/// ```
+/// # use enum_parity::bit_parity;
+/// #[repr(u8)]
+/// #[bit_parity(even, allow_explicit_overrides = true)]
+/// enum Foo {
+///   // `0x01` does not have even bit parity, but it is allowed from the `allow_explicit_overrides` parameter
+///   A = 0x01,
+///   B,
+///   C,
+/// }
+///
+/// assert_eq!(Foo::A as u8, 0x01);
+/// // `B` and `C` will have even bit parity
+/// assert_eq!(Foo::B as u8, 0x03);
+/// assert_eq!(Foo::C as u8, 0x05);
+/// ```
+///
 #[proc_macro_attribute]
 pub fn bit_parity(
     args: proc_macro::TokenStream,

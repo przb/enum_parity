@@ -1,13 +1,59 @@
 //! This crate exposes the [`macro@bit_parity`] macro to enforce a given bit parity
 //!
+//! # Motivation
+//!
+//! Without bit parity, erroneous/random bit flips can lead to unexpected behavior.
+//!
+//! ## Without Bit Parity
+//! ```
+//! use enum_parity::bit_parity;
+//! use serde_repr::{Serialize_repr, Deserialize_repr};
+//!
+//! #[repr(u8)]
+//! # #[derive(Debug, Eq, PartialEq)]
+//! // `serialize_repr` must be used, because `serde` uses enum indexes for binary serializations
+//! #[derive(Serialize_repr, Deserialize_repr)]
+//! enum Foo { A, B, C, D }
+//!
+//! let val = Foo::A;
+//! let mut serialized_val = postcard::to_allocvec(&val).unwrap();
+//!
+//! // *Random bit flip*
+//! serialized_val[0] |= 0x01;
+//!
+//! // This successfully deserializes, but is the incorrect value!
+//! let new_val: Foo = postcard::from_bytes(&serialized_val).unwrap();
+//! assert_eq!(new_val, Foo::B);
+//! assert_ne!(val, new_val);
+//! ```
+//!
+//! ## With Bit Parity
+//! ```
+//! # use enum_parity::bit_parity;
+//! # use serde_repr::{Serialize_repr, Deserialize_repr};
+//! #[repr(u8)]
+//! #[bit_parity(even)] // using bit parity!
+//! # #[derive(Debug, Eq, PartialEq)]
+//! #[derive(Serialize_repr, Deserialize_repr)]
+//! enum Foo { A, B, C, D }
+//! let val = Foo::A;
+//! let mut serialized_val = postcard::to_allocvec(&val).unwrap();
+//!
+//! // *Random bit flip*
+//! serialized_val[0] |= 0x01;
+//!
+//! // This fails to deserialize
+//! let new_par_err: postcard::Result<Foo> = postcard::from_bytes(&serialized_val);
+//! assert_eq!(new_par_err, Err(postcard::Error::SerdeDeCustom));
+//! ```
 //! # Examples
 //!
 //! ## Even Bit Parity
 //! ```
 //! use enum_parity::bit_parity;
 //!
-//! #[bit_parity(even)]
 //! #[repr(u8)]
+//! #[bit_parity(even)]
 //! pub enum EvenSample {
 //!     Foo,
 //!     Bar,
@@ -25,8 +71,8 @@
 //! ```
 //! use enum_parity::bit_parity;
 //!
-//! #[bit_parity(odd)]
 //! #[repr(u8)]
+//! #[bit_parity(odd)]
 //! pub enum OddSample {
 //!     Lorem,
 //!     Ipsum,

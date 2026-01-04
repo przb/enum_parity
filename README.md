@@ -11,15 +11,15 @@ Using even or odd bit parity enforces a
 How to use with Cargo:
 ```toml
 [dependencies]
-enum_parity = "0.1.0"
+enum_parity = "0.2.0"
 ```
 
 To use in your crate:
 ```rust
 use enum_parity::bit_parity;
 
-#[bit_parity(even)]
 #[repr(u8)]
+#[bit_parity(even)]
 pub enum EvenParitySample {
     Foo,
     Bar,
@@ -27,8 +27,8 @@ pub enum EvenParitySample {
     Quo,
 }
 
-#[bit_parity(odd)]
 #[repr(u8)]
+#[bit_parity(odd)]
 pub enum OddParitySample {
     Lorem,
     Ipsum,

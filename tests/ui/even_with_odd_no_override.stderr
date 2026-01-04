@@ -1,0 +1,5 @@
+error: explicit discriminant does not have `even` parity
+ --> tests/ui/even_with_odd_no_override.rs:7:9
+  |
+7 |     B = 0x04,
+  |         ^^^^
